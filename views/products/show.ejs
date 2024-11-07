@@ -7,12 +7,12 @@
 </head>
 <body>
     <h1><%= product.name %></h1>
-    <li><%= product.price %> </li>
-    <li><%= product.category %> </li>
+    <li>Price: <%= product.price %></li>
+    <li>Category: <a href="/products?category=<%= product.category %>"><%= product.category %></a></li>
 
     <a href="/products/">All products</a>
     <a href="/products/<%= product._id %>/edit">Edit product</a>
-    <form action="/products/<%= product._id%>?_method=DELETE" method="POST" >
+    <form action="/products/<%= product._id %>?_method=DELETE" method="POST">
         <button>Delete</button>
     </form>
 </body>

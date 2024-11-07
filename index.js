@@ -28,8 +28,16 @@ app.get('/dogs', (req, res) => {
 });
 
 app.get('/products', async (req, res) => {
-    const products = await Product.find({});
-    res.render('products/index', { products });
+    const {category} = req.query;
+    if (category){
+        const products = await Product.find({category});
+        res.render('products/index', { products, category });
+    }else{
+        const products = await Product.find({});
+        res.render('products/index', { products, category: 'All' });
+
+  
+    }
 });
 
 // Add a new product form - this should come before the `/:id` route
