@@ -7,11 +7,12 @@ const productSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
     category: {
         type: String,
-        enum: ['fruit', 'vegetable', 'dairy'],
+        enum: ['fruit', 'vegetable', 'dairy', 'fungi'],
         lowercase: true
     }
 });

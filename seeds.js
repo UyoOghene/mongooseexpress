@@ -11,6 +11,7 @@ mongoose.connect('mongodb://localhost:27017/farmStand')
         console.log('mongo oh no error!');
         console.log(err);
     });
+    321 
 
 const p = new Product({
     name: 'Ruby Grapefruit',
@@ -64,10 +65,10 @@ p.save()
         },
     ]
 
-    Product.insertMany(seedProducts)
-    .then(res => {
-        console.log(res)
-    })
-    .catch(e => {
-        console.log(e)
-    })
+    // Product.insertMany(seedProducts)
+    // .then(res => {
+    //     console.log(res)
+    // })
+    // .catch(e => {
+    //     console.log(e)
+    // })
