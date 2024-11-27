@@ -5,9 +5,10 @@ const mongoose = require('mongoose');
 const Product = require('./models/product');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override')
+const AppError = require('./AppError')
 
 
-mongoose.connect('mongodb://localhost:27017/farmStand')
+mongoose.connect('mongodb://localhost:27017/farmStand2')
     .then(() => {
         console.log('Mongo connection open');
     })
@@ -51,24 +52,42 @@ app.post('/products', async (req, res) => {
     res.redirect(`/products/${newProduct._id}`);
 });
 
-app.get('/products/:id', async (req, res) => {
+app.get('/products/:id', (req, res, next) => {
     const { id } = req.params;
-    // Check if the id is a valid ObjectId
-    if (!mongoose.isValidObjectId(id)) {
-        return res.status(400).send("Invalid Product ID");
-    }
-    const product = await Product.findById(id);
-    if (!product) {
-        return res.status(404).send("Product Not Found");
-    }
-    res.render('products/show', { product });
-});
-app.get('/products/:id/edit',async (req,res) =>{
-   const {id} = req.params;
-   const product = await Product.findById(id);
 
-   res.render('products/edit', {product, categories}) 
-})
+    // Validate the ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return next(new AppError('Invalid Product ID', 400));
+    }
+
+    Product.findById(id)
+        .then((product) => {
+            if (!product) {
+                return next(new AppError('Product not found', 404));
+            }
+            res.render('products/show', { product });
+        })
+        .catch(next); // Pass any unexpected errors to the error-handling middleware
+});
+
+app.get('/products/:id/edit', (req, res, next) => {
+    const { id } = req.params;
+
+    // Validate the ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return next(new AppError('Invalid Product ID', 400));
+    }
+
+    // Find the product by ID
+    Product.findById(id)
+        .then((product) => {
+            if (!product) {
+                return next(new AppError('Product not found', 404));
+            }
+            res.render('products/edit', { product, categories });
+        })
+        .catch(next); // Pass unexpected errors to the error-handling middleware
+});
 
 app.put('/products/:id', async (req, res) => {
     const { id } = req.params;
@@ -82,6 +101,13 @@ app.delete('/products/:id', async (req, res) => {
     await Product.findByIdAndDelete(id);
     res.redirect('/products');
 });
+
+app.use((err, req, res, next) => {
+    const { status = 500, message = 'Something went wrong' } = err;
+    res.status(status).send(message);
+});
+
+
 
 app.listen(3000, () => {
     console.log('App is listening on port 3000');

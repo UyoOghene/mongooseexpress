@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Product = require('./models/product');
 const { name } = require('ejs');
 
-mongoose.connect('mongodb://localhost:27017/farmStand')
+mongoose.connect('mongodb://localhost:27017/farmStand2')
     .then(() => {
         console.log('mongo connection open');
     })
