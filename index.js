@@ -58,19 +58,42 @@ app.get('/farms/new', (req, res) => {
     res.render('farms/new');
 });
 
-app.post('/farms',  ( async(req, res, next) => { 
+app.post('/farms',  async (req, res, next) => { 
     const farm = new Farm(req.body)
     await farm.save();
     res.redirect('/farms')
- }));
+ });
 
  app.get('/farms/:id', async(req,res) =>{
     const { id } = req.params;
     const farm = await Farm.findById(id)
     res.render('farms/show',{farm})
- })
+ }); 
  
 
+ app.delete('/farms/:id', async(req,res) => {
+    const {id} = req.params;
+    const farm = await Farm.findByIdAndDelete(id);
+    res.redirect('/farms');
+ })
+
+ app.get('/farms/:id/products/new', (req,res) =>{
+    const {id} = req.params;
+    res.render('products/new',{ categories, id})
+ });
+
+ app.post('/farms/:id/products', async (req, res) => {
+    const { id } = req.params;
+    const farm = await Farm.findById(id);
+    const {name, price, category} = req.body;
+    const product = new Product({ name, price, category})
+    farm.products.push(product);
+    product.farm = farm;
+    await farm.save();
+    await product.save();
+    res.send(farm);
+ });
+ 
 
 // Product routes
 app.get('/products', wrapAsync( async (req, res, next) => {

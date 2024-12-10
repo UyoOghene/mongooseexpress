@@ -8,10 +8,13 @@
 <body>
     <h1><%= farm.name %></h1>
     <li>Email: <%= farm.email %></li>
-
     <li>City: <%= farm.city %></li>
-
-
+    <li>farm id: <%= farm.id %></li>
+    <form action="/farms/<%= farm._id %>?_method=DELETE" method="POST">
+        <button>Delete</button>
     </form>
+
+    <a href="/farms">All farms</a>
+
 </body>
 </html>
