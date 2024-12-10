@@ -13,8 +13,17 @@
     <form action="/farms/<%= farm._id %>?_method=DELETE" method="POST">
         <button>Delete</button>
     </form>
+    <h2>Products</h2>   
+    <ul>
+       <% for(let product of farm.products) { %>
+         <li>    <a href="/products/<%= product.id %>"><%= product.name  %></a>
+         </li>
+        <% } %>
+    </ul>
 
     <a href="/farms">All farms</a>
+    <a href="/farms/<%= farm._id %>/products/new">Add a product</a>
 
+    
 </body>
 </html>
