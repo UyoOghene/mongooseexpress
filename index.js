@@ -3,13 +3,14 @@ const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
 const Product = require('./models/product');
+const Farm = require('./models/farm')
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override')
 const session = require('express-session')
 const flash = require('connect-flash')
 
 
-mongoose.connect('mongodb://localhost:27017/farmStand')
+mongoose.connect('mongodb://localhost:27017/farmStand2')
     .then(() => {
         console.log('Mongo connection open');
     })
@@ -76,11 +77,17 @@ app.get('/products/:id/edit',async (req,res) =>{
    res.render('products/edit', {product, categories}) 
 })
 
-app.put('/products/:id', async (req, res) => {
-    const { id } = req.params;
-    const product = await Product.findByIdAndUpdate(id, req.body, { runValidators: true, new: true });
-    res.redirect(`/products/${product._id}`);
-    console.log(req.body);
+app.put('/products/:id', async (req, res,next) => {
+    try{
+        const { id } = req.params;
+        const product = await Product.findByIdAndUpdate(id, req.body, { runValidators: true, new: true });
+        res.redirect(`/products/${product._id}`);
+        console.log(req.body);
+    
+    }
+    catch(e) {
+        next(e)
+    }
 });
 
 app.delete('/products/:id', async (req, res) => {
@@ -88,6 +95,23 @@ app.delete('/products/:id', async (req, res) => {
     await Product.findByIdAndDelete(id);
     res.redirect('/products');
 });
+const handleValidatnErr = (err)=>{
+    console.log(err)
+    return new AppError(`validation failed : ${err.message}`,400);
+}
+
+app.use((err,req,res,next)=>{
+    console.log(err.name)
+    if (err.name === 'ValidationError') err= handleValidatnErr(err)
+        next(err)
+})
+
+app.use((err, req, res, next) => {
+    const { status = 500, message = 'Something went wrong' } = err;
+    res.status(status).send(message);
+});
+
+
 
 app.listen(3000, () => {
     console.log('App is listening on port 3000');
