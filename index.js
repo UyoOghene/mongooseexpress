@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const Product = require('./models/product');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override')
+const session = require('express-session')
+const flash = require('connect-flash')
 
 
 mongoose.connect('mongodb://localhost:27017/farmStand')
@@ -18,9 +20,10 @@ mongoose.connect('mongodb://localhost:27017/farmStand')
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+app.use(session({secret: 'secret'}))
 app.use(methodOverride('_method'))
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(flash());
 const categories = ['fruit','vegetable','dairy','fungi']
 
 app.get('/dogs', (req, res) => {
@@ -29,15 +32,14 @@ app.get('/dogs', (req, res) => {
 
 app.get('/products', async (req, res) => {
     const {category} = req.query;
+    const messages = req.flash('success');
+
     if (category){
         const products = await Product.find({category});
-        res.render('products/index', { products, category });
+        res.render('products/index', { products, category,messages});
     }else{
         const products = await Product.find({});
-        res.render('products/index', { products, category: 'All' });
-
-  
-    }
+        res.render('products/index', { products, category: 'All', messages});    }
 });
 
 // Add a new product form - this should come before the `/:id` route
@@ -48,11 +50,15 @@ app.get('/products/new', (req, res) => {
 app.post('/products', async (req, res) => {
     const newProduct = new Product(req.body);
     await newProduct.save();
+    req.flash('success','new prod')
+
     res.redirect(`/products/${newProduct._id}`);
 });
 
 app.get('/products/:id', async (req, res) => {
     const { id } = req.params;
+    const messages = req.flash('success');
+
     // Check if the id is a valid ObjectId
     if (!mongoose.isValidObjectId(id)) {
         return res.status(400).send("Invalid Product ID");
@@ -61,7 +67,7 @@ app.get('/products/:id', async (req, res) => {
     if (!product) {
         return res.status(404).send("Product Not Found");
     }
-    res.render('products/show', { product });
+    res.render('products/show', { product, messages });
 });
 app.get('/products/:id/edit',async (req,res) =>{
    const {id} = req.params;

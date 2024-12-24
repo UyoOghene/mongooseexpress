@@ -6,6 +6,7 @@
     <title><%= product.name %> details</title>
 </head>
 <body>
+    <%= messages %>
     <h1><%= product.name %></h1>
     <li>Price: <%= product.price %></li>
     <li>Category: <a href="/products?category=<%= product.category %>"><%= product.category %></a></li>
